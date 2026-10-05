@@ -226,3 +226,27 @@ npx playwright test tests/e2e-flows.spec.ts
 - [ ] **AI 프롬프트 맞춤 템플릿**: 아키텍처 심층 분석형, 신입 개발자 온보딩용 쉬운 요약형 등 모드 선택
 - [ ] **PWA(Progressive Web App) 및 Web Push API**: 모바일 홈 화면 설치 및 퇴근길(18:30) 푸시 알림 수신
 - [ ] **크롬 브라우저 익스텐션 연동**: 웹 브라우저에서 카카오톡 웹버전이나 기술 아티클 조회 시 즉시 사이드바로 요약본 조회
+
+
+
+---
+개발 흐름
+```
+초기 기획 및 바이브코딩 학습 플랫폼(https://re-it-me.vercel.app/) 사용해서 기획
+-> google Stitch(http://stitch.withgoogle.com/) 사용해서 프론트 디자인 구현.
+-> google AI studio와 연동해서 실제 코드로 구현 및 세부수정 진행 및 깃허브 푸시.
+-> 향후 codex 등으로 실사용 가능한 단계까지 구체화 예정(배포까지)
+```
+
+google AI Studio
+<div align="center">
+
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+
+  <h1>Built with AI Studio</h2>
+
+  <p>The fastest path from prompt to production with Gemini.</p>
+
+  <a href="https://aistudio.google.com/apps">Start building</a>
+
+</div>
