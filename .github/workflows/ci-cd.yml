@@ -1,0 +1,108 @@
+name: Okabang CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 1단계: 정적 코드 분석 및 TypeScript 타입 검증
+  lint-and-typecheck:
+    name: Code Quality & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run TypeScript Strict Lint
+        run: npm run lint
+
+  # 2단계: 최적화 프로덕션 번들 빌드 및 E2E 테스트 검증
+  build-and-e2e:
+    name: Production Build & E2E Validation
+    needs: lint-and-typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Production Assets
+        env:
+          VITE_APP_ENV: production
+          NODE_ENV: production
+        run: npm run build
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E Test Suite (Main Journey & Edge Cases)
+        run: npx playwright test
+
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist/
+          retention-days: 7
+
+  # 3단계: 프로덕션 자동 배포 (main 브랜치 푸시 시에만 실행)
+  deploy-production:
+    name: Deploy to Production Hosting
+    needs: build-and-e2e
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist/
+
+      # [배포 옵션 A: Vercel]
+      # - name: Deploy to Vercel
+      #   uses: amondnet/vercel-action@v25
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     vercel-args: '--prod'
+
+      # [배포 옵션 B: Cloudflare Pages]
+      # - name: Deploy to Cloudflare Pages
+      #   uses: cloudflare/wrangler-action@v3
+      #   with:
+      #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #     command: pages deploy dist --project-name=okabang-platform
+
+      - name: Deployment Success Notification
+        run: |
+          echo "✅ Production artifacts successfully built and verified by CI/CD pipeline."
+          echo "Ready for zero-downtime serving."

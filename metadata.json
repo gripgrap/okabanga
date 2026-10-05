@@ -1,0 +1,6 @@
+{
+  "name": "오카방가방가",
+  "description": "오픈카톡 잡담 필터링 & 핵심 토론 학습 요약 서비스",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
